@@ -7,7 +7,6 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { Github, ArrowLeft, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
-// Predefined sarcastic phrases and their results
 const SARCASM_DATABASE = {
   "yeah, right": true,
   "oh how wonderful": true,
@@ -46,7 +45,7 @@ export default function Result() {
   const [loading, setLoading] = useState(true);
   const [isSarcastic, setIsSarcastic] = useState<boolean | null>(null);
   const [response, setResponse] = useState('');
-  
+
   const text = searchParams.get('text')?.toLowerCase().trim();
 
   useEffect(() => {
@@ -55,21 +54,55 @@ export default function Result() {
       return;
     }
 
+    // Function to fetch from the API
+    const fetchSarcasmPrediction = async (inputText: string) => {
+      try {
+        const response = await fetch('https://beforreal.api-cloud.one/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            accept: 'application/json',
+          },
+          body: JSON.stringify({ sentence: inputText }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          return data.prediction.toLowerCase() === 'sarcastic';
+        } else {
+          console.error('Failed to fetch from API:', response.statusText);
+          return null;
+        }
+      } catch (error) {
+        console.error('API call error:', error);
+        return null;
+      }
+    };
+
     // Simulate analysis with a delay
-    const timer = setTimeout(() => {
-      const result = SARCASM_DATABASE[text as keyof typeof SARCASM_DATABASE];
-      setIsSarcastic(result !== undefined ? result : Math.random() > 0.7);
-      
-      // Select a random response based on the result
-      const responses = result !== undefined ? 
-        (result ? SARCASTIC_RESPONSES : SINCERE_RESPONSES) :
-        (Math.random() > 0.7 ? SARCASTIC_RESPONSES : SINCERE_RESPONSES);
-      
+    const analyzeText = async () => {
+      setLoading(true);
+
+      // Try to fetch from the API
+      const apiResult = await fetchSarcasmPrediction(text);
+
+      if (apiResult !== null) {
+        // If API call was successful
+        setIsSarcastic(apiResult);
+      } else if (text in SARCASM_DATABASE) {
+        // If API call fails, fallback to SARCASM_DATABASE
+        setIsSarcastic(SARCASM_DATABASE[text as keyof typeof SARCASM_DATABASE]);
+      } else {
+        // Default if neither API nor database has the answer
+        setIsSarcastic(false);
+      }
+
+      const responses = isSarcastic ? SARCASTIC_RESPONSES : SINCERE_RESPONSES;
       setResponse(responses[Math.floor(Math.random() * responses.length)]);
       setLoading(false);
-    }, 1500);
+    };
 
-    return () => clearTimeout(timer);
+    analyzeText();
   }, [text, router]);
 
   return (
