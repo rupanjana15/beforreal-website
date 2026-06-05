@@ -17,8 +17,7 @@ Using advanced language models, the app analyzes input text to detect sarcasm. *
 - **Radix UI**: Accessible, unstyled components for a minimalist, flexible UI.
 - **TypeScript**: Ensures reliable type safety and maintainable code.
 
-## Powered By
-This app uses the [Sarcasm Detection Model](https://github.com/rupanjana15/sarcasm-detection-model) for text analysis.
+
 
 ## Usage
 1. Clone the repository and install dependencies.
