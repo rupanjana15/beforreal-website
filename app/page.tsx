@@ -42,6 +42,7 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
               className="hover:opacity-80 transition-opacity"
+              aria-label="View the sarcasm detection model on GitHub"
             >
               <Github className="w-6 h-6" />
             </a>
@@ -59,6 +60,7 @@ export default function Home() {
           <div className="flex gap-4 max-w-2xl mx-auto mb-8">
             <Input
               type="text"
+              aria-label="Text to analyze for sarcasm"
               placeholder="Type something like 'yeah, right' or 'this is fine'..."
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -79,8 +81,9 @@ export default function Home() {
             {EXAMPLE_TEXTS.map((example, index) => (
               <button
                 key={example}
+                type="button"
                 onClick={() => setText(example)}
-                className="text-primary hover:underline focus:outline-none"
+                className="text-primary hover:underline rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {example}
                 {index < EXAMPLE_TEXTS.length - 1 ? ', ' : ''}

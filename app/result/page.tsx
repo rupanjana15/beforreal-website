@@ -86,18 +86,22 @@ export default function Result() {
       // Try to fetch from the API
       const apiResult = await fetchSarcasmPrediction(text);
 
+      let sarcastic: boolean;
       if (apiResult !== null) {
         // If API call was successful
-        setIsSarcastic(apiResult);
+        sarcastic = apiResult;
       } else if (text in SARCASM_DATABASE) {
         // If API call fails, fallback to SARCASM_DATABASE
-        setIsSarcastic(SARCASM_DATABASE[text as keyof typeof SARCASM_DATABASE]);
+        sarcastic = SARCASM_DATABASE[text as keyof typeof SARCASM_DATABASE];
       } else {
         // Default if neither API nor database has the answer
-        setIsSarcastic(false);
+        sarcastic = false;
       }
 
-      const responses = isSarcastic ? SARCASTIC_RESPONSES : SINCERE_RESPONSES;
+      // Use the local value: `isSarcastic` state is still stale inside this closure,
+      // which previously made the message always pick the sincere list.
+      const responses = sarcastic ? SARCASTIC_RESPONSES : SINCERE_RESPONSES;
+      setIsSarcastic(sarcastic);
       setResponse(responses[Math.floor(Math.random() * responses.length)]);
       setLoading(false);
     };
@@ -123,6 +127,7 @@ export default function Result() {
               target="_blank"
               rel="noopener noreferrer"
               className="hover:opacity-80 transition-opacity"
+              aria-label="View the sarcasm detection model on GitHub"
             >
               <Github className="w-6 h-6" />
             </a>
